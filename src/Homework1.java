@@ -4,7 +4,8 @@ public class Homework1 {
 	public static void main(String[] args) {
 		// Begin of arguments input sample
 		//String input = "";
-		String input = "51+";
+		//String input = "124++";
+		String input = "251-*32*+";
 		String reOrder = "";
 		// Begin of arguments input sample
 
@@ -28,15 +29,17 @@ public class Homework1 {
 		for (int i = 0; i < input.length(); i++) {
 			//System.out.println( "do addinput");						//test function
 
-			//infix();
 			thisNode.input = String.valueOf(input.charAt(i));		//add input from args
 			thisNode.right = new Node();
 			thisNode = thisNode.right;								//add more data in Node
+
 		}
 
+
 		rootNode = infix(rootNode);
+
 		//String ordered = inorder(rootNode);
-		System.out.println( " = " + rootNode.input);
+		System.out.println(rootNode.reorder + " = " + rootNode.input);
 
 
 
@@ -48,52 +51,65 @@ public class Homework1 {
 	 * `calculate(Node n)`
 	 */
 
-	public static Node infix(Node infixNode){
+	public static Node infix(Node rootNodeAtInfix){
 
 
-		//System.out.println( "do infixNode");						//test function
+		//System.out.println( "do rootNodeAtInfix");						//test function
 
-
-		Node tempInfixNode = infixNode;
-		//Node rootInfixNode = infixNode;
+		Node tempInfixNode = rootNodeAtInfix;
+		//Node rootInfixNode = rootNodeAtInfix;
 		//Node checkLeft = null;
 
-		while (infixNode.right != null){
-			if(infixNode.right.input.matches("[0-9]")) {		//check is it number?
-				if(infixNode.left==null) {									//if left no problem then move
-					infixNode.left = infixNode.right;                //move right to left
-					infixNode.right = infixNode.left.right;                //move right.right to right
+		while (rootNodeAtInfix.right != null){
+			if(rootNodeAtInfix.right.input.matches("[0-9]")) {		//check is it number?
+				if(rootNodeAtInfix.left==null) {									//if left no problem then move
+					rootNodeAtInfix.left = rootNodeAtInfix.right;                //move right to left
+					rootNodeAtInfix.right = rootNodeAtInfix.right.right;                //move right.right to right
 				}else {														//if left already have number then move to the last left
-					tempInfixNode.left = infixNode.left;
+					tempInfixNode = rootNodeAtInfix;
 					while (tempInfixNode.left!=null){						//move to the last left
-						tempInfixNode.left = tempInfixNode.left.left;
+						tempInfixNode = tempInfixNode.left;
 					}
-					tempInfixNode.left = infixNode.right;
-					infixNode.right = tempInfixNode.left.right;				//move right.right to right
+					tempInfixNode.left = rootNodeAtInfix.right;
+					rootNodeAtInfix.right = rootNodeAtInfix.right.right;				//move right.right to right
 				}
 			}else {
-				if (infixNode.right.right==null) {                            //if it last symbol can cal root and root.left
-					calculate(infixNode, infixNode);
-					infixNode.right = null;									//delete symbol
+//				System.out.println("     " + rootNodeAtInfix.input +"\n = "+rootNodeAtInfix.left.input + " :: " + rootNodeAtInfix.right.input);
+				Node temRoot = rootNodeAtInfix;
+				while (temRoot!=null){
+					//System.out.println("test added "+temRoot.input);
+					temRoot = temRoot.left;
+
+				}
+				if (rootNodeAtInfix.left.left==null) {                            //if it last symbol can cal root and root.left
+					calculate(rootNodeAtInfix, rootNodeAtInfix);
+					//inorder(rootNodeAtInfix,rootNodeAtInfix);
 					//System.out.println("error1");
 
 				}else {														//if not the last symbol have to move before cal
-					tempInfixNode = infixNode;
+					tempInfixNode = rootNodeAtInfix;
 					while (tempInfixNode.left.left != null){
 						tempInfixNode = tempInfixNode.left;
 					}
-					calculate(tempInfixNode,infixNode);
-					infixNode.right = infixNode.right.right;				//delete symbol + move up
+					calculate(tempInfixNode,rootNodeAtInfix);
+					//inorder(tempInfixNode,rootNodeAtInfix);
 					//System.out.println( "error2");
 				}
 
 
-
 			}
+		}
 
 
+		return rootNodeAtInfix;
+	}
 
+	public static String inorder(Node inoderNode,Node rootNodeAtInorder){
+		//System.out.println( "do nodeINorder");						//test function
+		rootNodeAtInorder.reorder = inoderNode.input + rootNodeAtInorder.right.input + inoderNode.left.input;
 
+		if (inoderNode.left.left != null){								//incase it not the last node on the left
+			inoderNode.left = inoderNode.left.left;					//we have to move the node left left up to left
 		}
 
 
@@ -101,36 +117,47 @@ public class Homework1 {
 
 
 
-		return infixNode;
-	}
 
-	public static String inorder(Node nodeInorder){
-		System.out.println( "do nodeINorder");						//test function
-		String orderedInput;
-
-
-		return nodeInorder.input;			//return final text display
+		return inoderNode.reorder;			//return final text display
 	}
 
 
 
-	public static Node calculate(Node nodeCalculate,Node nodeSymbol){
+	public static Node calculate(Node nodeCalculate,Node rootNodeAtCalculate){
 		//System.out.println( "do nodeCal");						//test function
 		int result = Integer.valueOf(nodeCalculate.input);					//make it can calculate
 		int left = Integer.valueOf(nodeCalculate.left.input);				//by make string to int
 
-
-		switch (nodeSymbol.right.input){
+		System.out.println( " = " + result + rootNodeAtCalculate.right.input + left );
+		switch (rootNodeAtCalculate.right.input){
 			case "+": result = result + left;break;
 			case "-": result = result - left;break;
 			case "*": result = result * left;break;
 			case "/": result = result / left;break;
 		}
+		System.out.println( " = " + result + "\n");
+
+
 
 		nodeCalculate.input=String.valueOf(result);							//make int back to string
-		if (nodeCalculate.left.left != null){								//incase it not the last node on the left
-			nodeCalculate.left = nodeCalculate.left.left;
+
+		if (nodeCalculate == rootNodeAtCalculate){
+				//fix bug pointernull error
+			nodeCalculate.left = null;
+		}else {
+			nodeCalculate.left = null;                                            //deleted node that calculated
 		}
+
+
+		if (rootNodeAtCalculate.right.right!=null) {
+			//System.out.println("make last node null1");
+			rootNodeAtCalculate.right = rootNodeAtCalculate.right.right;        //delete Symbol + move number/Symbol up
+		}else {
+			//System.out.println("make last node null2");
+			rootNodeAtCalculate.right = null;
+		}
+
+
 
 
 		return nodeCalculate;
